@@ -8,3 +8,7 @@ transformers
         6）>>>Accelerate:分布式训练，提供分布式训练解决方案
         7）>>>Optimum:优化加速库，支持多种后端，如Onnxruntime等
         8）>>>Gradio：可视化部署库，快速实现基于web交互的算法演示系统
+二.>>>相关组件
+        1）>>>pipeline:(简单理解为管道流水线)   输入->Tokenizer->Model->Post Processing->输出
+                
+        2）>>>
