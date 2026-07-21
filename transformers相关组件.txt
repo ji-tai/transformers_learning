@@ -10,5 +10,6 @@ transformers
         8）>>>Gradio：可视化部署库，快速实现基于web交互的算法演示系统
 二.>>>相关组件
         1）>>>pipeline:(简单理解为管道流水线)   输入->Tokenizer->Model->Post Processing->输出
-                
-        2）>>>
+                >>>pipeline的初始化
+                   pipe = pipeline("text-classification",model = "",tokenizer = "",device = )#第一个参数指定任务类型，第二个指定模型，第三个指定分词器，第四个指定设备（gpu or cpu）
+        2）>>>Tokenizer:
