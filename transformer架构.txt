@@ -42,14 +42,59 @@
 四.一个模型的总体架构
         >>>简单框架
                 1.Embedding Layer（嵌入层）
-                2.Stacked Layers（堆叠的transformer层）
+                2.Stacked Layers（堆叠的transformer_block层）
                 3.Task-Specific Head（任务专属输出头）
                 即res = model(**input)>>>输入 → 嵌入层（变成向量）→ 12层（自注意力 + 前馈网络）→ 输出头（映射为问答分数）→ 输出结果
         >>>详细介绍
                 1.嵌入层
-                                >> Multi-Head Self-Attention多头自注意力层
-                                >> Feed-Forward Network, FFN前馈神经网络层
-                2.特征提取层Transformer>>>
-                                >> 残差连接
-                                >> 归一化
-                3.输出转换器
+                        >>根据ids来获得每一个token的词义向量
+                2.特征提取层Transformer_blocks多层叠加
+                        >> Multi-Head Self-Attention多头自注意力层
+                        >> Feed-Forward Network, FFN前馈神经网络层
+                        >> 残差连接
+                        >> 归一化
+                3.模型头（model_head）:将模型的编码表示结果进行映射来解决不同问题
+                        >>Hidden State（隐藏矩阵，也就是这个句子的含义的矩阵）（一般是一个模型架构的输出）
+                                Batch Size：一次处理几条句子。
+                                Sequence Length：这条句子有多少个Token（词/字）。
+                                Hidden Size：向量的维度（BERT-Base是768维，BERT-Large是1024维）。
+                        >>常见的模型头
+                                Model（模型本身，只返回编码结果）
+                                ForCausalLM（解码器模型，自回归型模型）
+                                ForMaskedLM
+                                ForSeq2SeqLM（序列到序列模型，含有编码器与解码器）
+                                ForMultipleChoice（多项选择）
+                                ForQuestionAnswering（文本阅读回答）
+                                ForSequenceClassification（序列分类）
+                                ForTokenClassification（token分类）
+五.Transformer架构
+        （1）>>>encode(编码器)：编码器输出的是富含上下文语义的动态向量
+                >>>Input Embedding（嵌入层）
+                >>>Stacked Layers(堆叠transformer_block层)
+                        >>transformer_block
+                                >Multi_head_attention(多头注意力机制)
+                                >Add and norm（残差链接 and 归一化）
+                                >Feed forward（前馈神经网络）：可以看成是一个双层感知机，由两层全连接层
+                                >Add and norm（残差链接 and 归一化）
+        （2）>>>decode(解码器)：解码器输入的是1编码器的最终输出和2已生成的文本，而输出是生成下一个词的概率，给出词表中每一个词的概率
+                >>>Output Embedding（嵌入层）：第一个输入已生成的文本
+                >>>Stacked Layers(堆叠transformer_block层)
+                        >>transformer_block
+                                >Masked Multi-Head Attention(带掩码的多头注意力)
+                                >Add and norm（残差链接 and 归一化）
+                                >Multi-Head Attention（交叉注意力）
+                                >Add and norm（残差链接 and 归一化）
+                                >Feed forward（前馈神经网络）：可以看成是一个双层感知机，由两层全连接层：可以将前馈神经网络的每一层视作提取特征（向输入不断提问，（比如：红色√，很大×...等等）然后根据这些神经元不断更新向量）
+                                >Add and norm（残差链接 and 归一化）
+                        >>Linear（线性层，全连接层）：把解码器最后一层输出的向量，映射到词典大小（比如 5 万个词）的分数上
+                        >>Softmax（归一化）：把这些分数变成概率（加起来等于 1），概率最高的那个词就是模型预测的下一个词
+六.模型的分类（根据注意力机制）
+        编码器模型：自编码模型，使用Encode，拥有双向的注意力机制，计算每一个词的特征时都会看到完整的上下文
+                例如：ALBERT, BERT, DistilBERT, RoBERTa
+                侧重：文本分类、命名实体识别、阅读理解
+        解码器模型：自回归模型，使用Dncode，只有单项的注意力机制，计算每一个词的特征时都会只会看到上文
+                例如：GPT, GPT-2, Bloom, LLaMA
+                侧重：文本生成
+        编码器解码器模型：seq2seq模型，使用Encode和Decode，前一部分使用双向注意力机制，后面使用单项的注意力机制
+                例如：BART, T5, Marian, mBART, GLM
+                侧重：文本摘要、机器翻译

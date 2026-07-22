@@ -9,7 +9,9 @@ transformers
         7）>>>Optimum:优化加速库，支持多种后端，如Onnxruntime等
         8）>>>Gradio：可视化部署库，快速实现基于web交互的算法演示系统
 二.>>>相关组件
-        1）>>>pipeline:(简单理解为管道流水线)   输入->Tokenizer->Model->Post Processing->输出
+        1）>>>pipeline:(管道流水线)   输入->Tokenizer（分词器）->Model（模型）->Post Processing（任务处理）->输出
                 >>>pipeline的初始化
                    pipe = pipeline("text-classification",model = "",tokenizer = "",device = )#第一个参数指定任务类型，第二个指定模型，第三个指定分词器，第四个指定设备（gpu or cpu）
-        2）>>>Tokenizer:
+        2）>>>Tokenizer:（分词器）    输入->tokenize(分词)->convert_tokens_to_ids（根据词典数据转换）->（数据填充与截断，以及attention_mask）->获得token_id
+        3）>>>Model：(模型)
+                >>>基础知识：大部分的huggingface的模型都是transformers架构
