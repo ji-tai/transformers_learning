@@ -15,3 +15,15 @@ transformers
         2）>>>Tokenizer:（分词器）    输入->tokenize(分词)->convert_tokens_to_ids（根据词典数据转换）->（数据填充与截断，以及attention_mask）->获得token_id
         3）>>>Model：(模型)
                 >>>基础知识：大部分的huggingface的模型都是transformers架构
+                >>>模型的输出：outputs(是一个字典类型的对象)
+                        >>有三种访问方式：
+                                >属性：outputs.Loss
+                                >字典：outputs["loss"]
+                                >元组：outputs[0]
+                        >>常见的输出属性：                                
+                                属性名	                    类型	                        描述	                                                何时出现
+                                loss	                torch.FloatTensor	        计算得到的损失值（标量）。	                当你向模型传入了 labels 参数时才会计算并返回。
+                                logits	                torch.FloatTensor	        模型的原始预测分数（未经过Softmax归一化）。	 几乎所有任务的头（如分类、问答）都会返回，是模型的核心输出。
+                                hidden_states	        tuple(torch.FloatTensor)	模型每一层的隐藏状态。	                        需要手动开启。在调用模型时设置 output_hidden_states=True。
+                                attentions	        tuple(torch.FloatTensor)	每一层的注意力权重矩阵。	                需要手动开启。在调用模型时设置 output_attentions=True。
+                                last_hidden_state	torch.FloatTensor	        模型最后一层的隐藏状态序列。	                 这是基础模型（如 BertModel） 的主要输出，形状为 (batch_size, sequence_length, hidden_size)。
