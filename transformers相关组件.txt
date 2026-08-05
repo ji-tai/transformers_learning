@@ -13,6 +13,11 @@ transformers
                 >>>pipeline的初始化
                    pipe = pipeline("text-classification",model = "",tokenizer = "",device = )#第一个参数指定任务类型，第二个指定模型，第三个指定分词器，第四个指定设备（gpu or cpu）
         2）>>>Tokenizer:（分词器）    输入->tokenize(分词)->convert_tokens_to_ids（根据词典数据转换）->（数据填充与截断，以及attention_mask）->获得token_id
+                >>Parameter参数
+                        >1.text：单个字符串/字符串列表/字符串的嵌套列表
+                        >2.return_tensors："pt"pytorch张量,"tf"tensorflow张量,"np"numpy数组,Nore
+                >>return输出
+                        >dict字典：一般包含的键为input_ids，attention_mask,token_type_ids，值为对应框架的张量
         3）>>>Model：(模型)
                 >>>基础知识：大部分的huggingface的模型都是transformers架构
                 >>>模型的输出：outputs(是一个字典类型的对象)

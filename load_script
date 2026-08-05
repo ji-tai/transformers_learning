@@ -1,0 +1,81 @@
+# 自定义数据集
+import json
+import datasets
+from datasets import DownloadManager, DatasetInfo
+
+
+class CMRC2018TRIAL(datasets.GeneratorBasedBuilder):
+
+    def _info(self) -> DatasetInfo:
+        """
+            info方法, 定义数据集的信息,这里要对数据的字段进行定义
+            description:对数据集的描述
+            features:描述这个数据集中包含的字段
+        :return:DatasetInfo
+        """
+        return datasets.DatasetInfo(
+            description="CMRC2018 trial",
+            features=datasets.Features({# 将输入的字典变为表格的数据格式，输入：dict类型，输出：Features(...)对象，输入中的字典的字段就是表头的字段
+                """
+                datasets.Value是定义字段类型
+                而datasets.Features是定义表结构
+                """
+                    "id": datasets.Value("string"),
+                    "context": datasets.Value("string"),
+                    "question": datasets.Value("string"),#datasets.Value是将string封装为一个定义好的类型，输入：类型，输出是：Value(dtype="string")
+                    "answers": datasets.features.Sequence(
+                        {
+                            "text": datasets.Value("string"),
+                            "answer_start": datasets.Value("int32"),
+                        }
+                    )
+                })
+        )
+
+        #这个方法是传递
+    def _split_generators(self, dl_manager: DownloadManager):#DownloadManager这个类管理数据集的下载、缓存、解压    
+        """
+            返回datasets.SplitGenerator
+            涉及两个参数: name和gen_kwargs
+            name: 指定数据集的划分
+            gen_kwargs: 指定要读取的文件的路径, 与_generate_examples的入参数一致
+        :param dl_manager:
+        :return: [ datasets.SplitGenerator ]
+        """
+        return [datasets.SplitGenerator(name=datasets.Split.TRAIN, 
+                                        gen_kwargs={"filepath": "./cmrc2018_trial.json"})]# datasets.SplitGenerator这个类是描述一个数据机划分的一个类，主要需要两个参数
+                                            # name：划分的名称，必须是split枚举类型中的值：还有VALIDATION（验证集），TEST（测试集）
+                                            # gen_kwargs：一个字典，其中的参数会传给_generate_examples函数作为方法
+    def _generate_examples(self, filepath):
+        """
+            生成具体的样本, 使用yield
+            需要额外指定key, id从0开始自增就可以
+        :param filepath:
+        :return:
+        """
+        # Yields (key, example) tuples from the dataset
+        # 打开文件
+        with open(filepath, encoding="utf-8") as f:
+            # 解析数据
+            data = json.load(f)
+            # 不断遍历读取数据
+            for example in data["data"]:# 循环取出data
+                for paragraph in example["paragraphs"]:# 循环取出paragraph
+                    context = paragraph["context"].strip()
+                    for qa in paragraph["qas"]:
+                        question = qa["question"].strip()
+                        id_ = qa["id"]
+
+                        answer_starts = [answer["answer_start"] for answer in qa["answers"]]
+                        answers = [answer["text"].strip() for answer in qa["answers"]]
+
+                        yield id_, {
+                            "context": context,
+                            "question": question,
+                            "id": id_,
+                            "answers": {
+                                "answer_start": answer_starts,
+                                "text": answers,
+                            },
+                        }
+
